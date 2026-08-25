@@ -1,0 +1,27 @@
+{
+  "buildFiles": [
+    "D:\\WriteBuddy\\Write-Buddy-feature-bulgarian-voice-notes-app\\Write-Buddy-feature-bulgarian-voice-notes-app\\app\\src\\main\\cpp\\CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "C:\\Users\\LiamP\\AppData\\Local\\Android\\Sdk\\cmake\\3.22.1\\bin\\ninja.exe",
+      "-C",
+      "D:\\WriteBuddy\\Write-Buddy-feature-bulgarian-voice-notes-app\\Write-Buddy-feature-bulgarian-voice-notes-app\\app\\.cxx\\Debug\\4p3w3f6n\\arm64-v8a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "C:\\Users\\LiamP\\AppData\\Local\\Android\\Sdk\\cmake\\3.22.1\\bin\\ninja.exe",
+    "-C",
+    "D:\\WriteBuddy\\Write-Buddy-feature-bulgarian-voice-notes-app\\Write-Buddy-feature-bulgarian-voice-notes-app\\app\\.cxx\\Debug\\4p3w3f6n\\arm64-v8a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "whisper_transcription::@6890427a1f51a3e7e1df": {
+      "artifactName": "whisper_transcription",
+      "abi": "arm64-v8a",
+      "output": "D:\\WriteBuddy\\Write-Buddy-feature-bulgarian-voice-notes-app\\Write-Buddy-feature-bulgarian-voice-notes-app\\app\\build\\intermediates\\cxx\\Debug\\4p3w3f6n\\obj\\arm64-v8a\\libwhisper_transcription.so",
+      "runtimeFiles": []
+    }
+  }
+}

@@ -1,0 +1,3 @@
+D:/WriteBuddy/Write-Buddy-feature-bulgarian-voice-notes-app/Write-Buddy-feature-bulgarian-voice-notes-app/app/.cxx/Debug/4p3w3f6n/x86_64/CMakeFiles/whisper_transcription.dir
+D:/WriteBuddy/Write-Buddy-feature-bulgarian-voice-notes-app/Write-Buddy-feature-bulgarian-voice-notes-app/app/.cxx/Debug/4p3w3f6n/x86_64/CMakeFiles/edit_cache.dir
+D:/WriteBuddy/Write-Buddy-feature-bulgarian-voice-notes-app/Write-Buddy-feature-bulgarian-voice-notes-app/app/.cxx/Debug/4p3w3f6n/x86_64/CMakeFiles/rebuild_cache.dir

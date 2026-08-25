@@ -1,0 +1,19 @@
+                        -HD:\WriteBuddy\Write-Buddy-feature-bulgarian-voice-notes-app\Write-Buddy-feature-bulgarian-voice-notes-app\app\src\main\cpp
+-DCMAKE_SYSTEM_NAME=Android
+-DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+-DCMAKE_SYSTEM_VERSION=21
+-DANDROID_PLATFORM=android-21
+-DANDROID_ABI=x86
+-DCMAKE_ANDROID_ARCH_ABI=x86
+-DANDROID_NDK=C:\Users\LiamP\AppData\Local\Android\Sdk\ndk\26.1.10909125
+-DCMAKE_ANDROID_NDK=C:\Users\LiamP\AppData\Local\Android\Sdk\ndk\26.1.10909125
+-DCMAKE_TOOLCHAIN_FILE=C:\Users\LiamP\AppData\Local\Android\Sdk\ndk\26.1.10909125\build\cmake\android.toolchain.cmake
+-DCMAKE_MAKE_PROGRAM=C:\Users\LiamP\AppData\Local\Android\Sdk\cmake\3.22.1\bin\ninja.exe
+-DCMAKE_CXX_FLAGS=-std=c++17
+-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=D:\WriteBuddy\Write-Buddy-feature-bulgarian-voice-notes-app\Write-Buddy-feature-bulgarian-voice-notes-app\app\build\intermediates\cxx\Debug\4p3w3f6n\obj\x86
+-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=D:\WriteBuddy\Write-Buddy-feature-bulgarian-voice-notes-app\Write-Buddy-feature-bulgarian-voice-notes-app\app\build\intermediates\cxx\Debug\4p3w3f6n\obj\x86
+-DCMAKE_BUILD_TYPE=Debug
+-BD:\WriteBuddy\Write-Buddy-feature-bulgarian-voice-notes-app\Write-Buddy-feature-bulgarian-voice-notes-app\app\.cxx\Debug\4p3w3f6n\x86
+-GNinja
+                        Build command args: []
+                        Version: 2
