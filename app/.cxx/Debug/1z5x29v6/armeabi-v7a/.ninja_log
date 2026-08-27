@@ -1,0 +1,5 @@
+# ninja log v5
+0	36777	8094047747856748	CMakeFiles/whisper_transcription.dir/whisper_wrapper.cpp.o	68b6309e8efe75b4
+36786	37126	8094047751520526	D:/WriteBuddy/Write-Buddy-feature-bulgarian-voice-notes-app/Write-Buddy-feature-bulgarian-voice-notes-app/app/build/intermediates/cxx/Debug/1z5x29v6/obj/armeabi-v7a/libwhisper_transcription.so	84fce97fac63ed33
+10	27261	8095168027222936	CMakeFiles/whisper_transcription.dir/whisper_wrapper.cpp.o	68b6309e8efe75b4
+27262	27692	8095168031559901	D:/WriteBuddy/Write-Buddy-feature-bulgarian-voice-notes-app/Write-Buddy-feature-bulgarian-voice-notes-app/app/build/intermediates/cxx/Debug/1z5x29v6/obj/armeabi-v7a/libwhisper_transcription.so	84fce97fac63ed33

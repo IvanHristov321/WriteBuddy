@@ -1,0 +1,3 @@
+D:/WriteBuddy/Write-Buddy-feature-bulgarian-voice-notes-app/Write-Buddy-feature-bulgarian-voice-notes-app/app/.cxx/Debug/1z5x29v6/armeabi-v7a/CMakeFiles/whisper_transcription.dir
+D:/WriteBuddy/Write-Buddy-feature-bulgarian-voice-notes-app/Write-Buddy-feature-bulgarian-voice-notes-app/app/.cxx/Debug/1z5x29v6/armeabi-v7a/CMakeFiles/edit_cache.dir
+D:/WriteBuddy/Write-Buddy-feature-bulgarian-voice-notes-app/Write-Buddy-feature-bulgarian-voice-notes-app/app/.cxx/Debug/1z5x29v6/armeabi-v7a/CMakeFiles/rebuild_cache.dir

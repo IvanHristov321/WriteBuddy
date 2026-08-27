@@ -1,0 +1,10 @@
+# ninja log v5
+0	37481	8094047747779811	CMakeFiles/whisper_transcription.dir/whisper_wrapper.cpp.o	aa7e457d9dfafbfb
+37489	37860	8094047751555610	D:/WriteBuddy/Write-Buddy-feature-bulgarian-voice-notes-app/Write-Buddy-feature-bulgarian-voice-notes-app/app/build/intermediates/cxx/Debug/1z5x29v6/obj/x86_64/libwhisper_transcription.so	9831d4068ead760
+38	833	8094573921109472	D:/WriteBuddy/Write-Buddy-feature-bulgarian-voice-notes-app/Write-Buddy-feature-bulgarian-voice-notes-app/app/build/intermediates/cxx/Debug/1z5x29v6/obj/x86_64/libwhisper_transcription.so	9831d4068ead760
+9	2706	8094789713627497	CMakeFiles/whisper_transcription.dir/whisper_wrapper.cpp.o	aa7e457d9dfafbfb
+2707	3365	8094789720485198	D:/WriteBuddy/Write-Buddy-feature-bulgarian-voice-notes-app/Write-Buddy-feature-bulgarian-voice-notes-app/app/build/intermediates/cxx/Debug/1z5x29v6/obj/x86_64/libwhisper_transcription.so	9831d4068ead760
+11	2316	8094795582665396	CMakeFiles/whisper_transcription.dir/whisper_wrapper.cpp.o	aa7e457d9dfafbfb
+2316	2704	8094795586694786	D:/WriteBuddy/Write-Buddy-feature-bulgarian-voice-notes-app/Write-Buddy-feature-bulgarian-voice-notes-app/app/build/intermediates/cxx/Debug/1z5x29v6/obj/x86_64/libwhisper_transcription.so	9831d4068ead760
+16	27367	8095168026511645	CMakeFiles/whisper_transcription.dir/whisper_wrapper.cpp.o	aa7e457d9dfafbfb
+27368	27891	8095168031701759	D:/WriteBuddy/Write-Buddy-feature-bulgarian-voice-notes-app/Write-Buddy-feature-bulgarian-voice-notes-app/app/build/intermediates/cxx/Debug/1z5x29v6/obj/x86_64/libwhisper_transcription.so	9831d4068ead760
