@@ -6,34 +6,30 @@ import java.io.File
 
 /**
  * Manager for handling speech-to-text transcription.
- * 
- * Uses JNI to call native code (whisper.cpp) for Bulgarian language transcription.
- * Place the Bulgarian model file (ggml-base.bg.bin) in app/src/main/assets/
  */
 class TranscriptionManager(private val context: Context) {
 
     companion object {
         private const val TAG = "TranscriptionManager"
-        private const val MODEL_NAME = "ggml-base.bg.bin"  // Bulgarian Whisper model
+        private const val DEFAULT_MODEL = "ggml-base.bg.bin"
+        private val MODELS = arrayOf("ggml-large.bin", "ggml-small.bin", "ggml-base.bg.bin")
     }
 
     private var nativeContext: Long = 0L
+    private var loadedModelName: String? = null
 
     init {
         // Load the native library
         try {
             System.loadLibrary("whisper_transcription")
             Log.d(TAG, "Native library loaded successfully")
-        } catch (e: UnsatisfiedLinkError) {
+        } catch (e: Throwable) {
             Log.e(TAG, "Failed to load native library", e)
         }
     }
 
     /**
      * Transcribes the given audio file to text in Bulgarian.
-     * 
-     * @param audioFile The audio file to transcribe (expected to be in WAV format)
-     * @return The transcribed text
      */
     fun transcribe(audioFile: File): String {
         Log.d(TAG, "Starting transcription of file: ${audioFile.absolutePath}")
@@ -50,31 +46,39 @@ class TranscriptionManager(private val context: Context) {
         
         return try {
             nativeTranscribe(nativeContext, audioFile.absolutePath)
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             Log.e(TAG, "Transcription error", e)
             "Грешка при разпознаване: ${e.message}"
         }
     }
 
     /**
-     * Initialize the transcription engine by loading the Bulgarian model.
-     * This should be called once when the app starts (e.g., in Application.onCreate).
+     * Initialize the transcription engine by loading the best available model.
      */
-    fun initialize() {
+    fun initialize(): Boolean {
         Log.d(TAG, "Initializing transcription engine...")
-        val modelFile = getModelFile()
+        val modelFile = getBestModelFile()
         
-        if (!modelFile.exists()) {
-            Log.e(TAG, "Model file not found: ${modelFile.absolutePath}")
-            Log.e(TAG, "Please download the Bulgarian Whisper model and place it in assets/")
-            return
+        if (modelFile == null || !modelFile.exists()) {
+            Log.e(TAG, "No valid model file found")
+            return false
         }
         
-        try {
+        Log.d(TAG, "Loading model: ${modelFile.name} (${modelFile.length() / 1024 / 1024} MB)")
+        
+        return try {
             nativeContext = nativeInitModel(modelFile.absolutePath)
-            Log.d(TAG, "Model initialized successfully")
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to initialize model", e)
+            if (nativeContext != 0L) {
+                loadedModelName = modelFile.name
+                Log.d(TAG, "Model $loadedModelName initialized successfully")
+                true
+            } else {
+                Log.e(TAG, "Native model initialization failed")
+                false
+            }
+        } catch (e: Throwable) {
+            Log.e(TAG, "Exception during model init", e)
+            false
         }
     }
 
@@ -83,32 +87,48 @@ class TranscriptionManager(private val context: Context) {
      */
     fun cleanup() {
         if (nativeContext != 0L) {
+            Log.d(TAG, "Cleaning up native context...")
             nativeFreeModel(nativeContext)
             nativeContext = 0L
+            loadedModelName = null
         }
     }
 
-    private fun getModelFile(): File {
-        val modelFile = File(context.filesDir, MODEL_NAME)
-        
-        // If not in internal storage, copy from assets
-        if (!modelFile.exists()) {
-            try {
-                context.assets.open(MODEL_NAME).use { input ->
-                    modelFile.outputStream().use { output ->
-                        input.copyTo(output)
+    private fun getBestModelFile(): File? {
+        // 1. Check storage for existing large models
+        for (modelName in MODELS) {
+            val file = File(context.filesDir, modelName)
+            if (file.exists() && file.length() > 10 * 1024 * 1024) { // > 10MB
+                return file
+            }
+        }
+
+        // 2. Search assets for the best model
+        val assetList = context.assets.list("") ?: emptyArray()
+        for (modelName in MODELS) {
+            if (assetList.contains(modelName)) {
+                val destFile = File(context.filesDir, modelName)
+                Log.d(TAG, "Found $modelName in assets. Preparing...")
+                
+                try {
+                    context.assets.open(modelName).use { input ->
+                        destFile.outputStream().use { output ->
+                            input.copyTo(output)
+                        }
                     }
+                    if (destFile.exists()) return destFile
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error copying $modelName", e)
                 }
-                Log.d(TAG, "Copied model from assets to ${modelFile.absolutePath}")
-            } catch (e: Exception) {
-                Log.e(TAG, "Model not found in assets", e)
             }
         }
         
-        return modelFile
+        // 3. Fallback to default check
+        val fallback = File(context.filesDir, DEFAULT_MODEL)
+        return if (fallback.exists()) fallback else null
     }
 
-    // Native methods (implemented in C++ via JNI)
+    // Native methods
     private external fun nativeInitModel(modelPath: String): Long
     private external fun nativeTranscribe(contextPtr: Long, audioFilePath: String): String
     private external fun nativeFreeModel(contextPtr: Long)

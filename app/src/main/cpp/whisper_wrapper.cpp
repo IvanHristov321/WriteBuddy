@@ -23,7 +23,13 @@ Java_com_example_android_1voice_1notes_transcription_TranscriptionManager_native
         jstring modelPath) {
 
     const char* model_path_str = env->GetStringUTFChars(modelPath, nullptr);
-    LOGI("Initializing Whisper model from: %s", model_path_str);
+
+    // Check real file size on disk
+    std::ifstream file(model_path_str, std::ios::binary | std::ios::ate);
+    std::streamsize size = file.tellg();
+    file.close();
+
+    LOGI("Initializing Whisper model from: %s (Size: %lld bytes)", model_path_str, (long long)size);
 
     // In a real implementation with whisper.cpp:
     // struct whisper_context * ctx = whisper_init_from_file(model_path_str);
@@ -48,24 +54,12 @@ Java_com_example_android_1voice_1notes_transcription_TranscriptionManager_native
     const char* audio_path_str = env->GetStringUTFChars(audioFilePath, nullptr);
     LOGI("Transcribing audio file: %s", audio_path_str);
 
-    WhisperContext* ctx = reinterpret_cast<WhisperContext*>(contextPtr);
-
-    // Simulate processing the WAV file
-    std::ifstream file(audio_path_str, std::ios::binary | std::ios::ate);
-    std::streamsize size = file.tellg();
-    file.seekg(0, std::ios::beg);
-
-    LOGI("Audio file size: %lld bytes", (long long)size);
-
-    // In a real implementation:
-    // 1. Read WAV file, convert to 16-bit float PCM
-    // 2. whisper_full(ctx, params, pcmf32.data(), pcmf32.size())
-    // 3. Collect segments into a result string
-
-    // Simulated Bulgarian result
-    std::string result = "Здравей, това е истинска транскрипция на български език, обработена от JNI слоя.";
+    // Skip actual file reading in simulation to avoid any IO-related crashes
+    // Simplified simulated result to avoid potential encoding issues during testing
+    std::string result = "SUCCESS: Bulgarian transcription simulated successfully. (Здравей!)";
 
     env->ReleaseStringUTFChars(audioFilePath, audio_path_str);
+    LOGI("nativeTranscribe finished, returning string to Java");
     return env->NewStringUTF(result.c_str());
 }
 

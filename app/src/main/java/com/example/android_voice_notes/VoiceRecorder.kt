@@ -7,6 +7,7 @@ import android.media.MediaRecorder
 import android.util.Log
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 import java.io.RandomAccessFile
 
 /**
@@ -22,64 +23,130 @@ class VoiceRecorder(private val outputFile: File) {
         private const val SAMPLE_RATE = 16000
         private const val CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO
         private const val AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT
-        private val BUFFER_SIZE = AudioRecord.getMinBufferSize(SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT)
     }
 
     @SuppressLint("MissingPermission")
-    fun startRecording() {
-        if (isRecording) return
+    fun startRecording(): Boolean {
+        if (isRecording) return true
 
-        audioRecord = AudioRecord(
+        val minBufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT)
+        if (minBufferSize == AudioRecord.ERROR_BAD_VALUE || minBufferSize == AudioRecord.ERROR) {
+            Log.e(TAG, "Invalid buffer size: $minBufferSize")
+            return false
+        }
+        
+        val bufferSize = minBufferSize * 2
+
+        val sources = intArrayOf(
+            MediaRecorder.AudioSource.VOICE_RECOGNITION,
             MediaRecorder.AudioSource.MIC,
-            SAMPLE_RATE,
-            CHANNEL_CONFIG,
-            AUDIO_FORMAT,
-            BUFFER_SIZE
+            MediaRecorder.AudioSource.DEFAULT
         )
 
-        if (audioRecord?.state != AudioRecord.STATE_INITIALIZED) {
-            Log.e(TAG, "AudioRecord initialization failed")
-            return
-        }
+        for (source in sources) {
+            try {
+                audioRecord = AudioRecord(
+                    source,
+                    SAMPLE_RATE,
+                    CHANNEL_CONFIG,
+                    AUDIO_FORMAT,
+                    bufferSize
+                )
 
-        audioRecord?.startRecording()
-        isRecording = true
-
-        recordingThread = Thread({
-            writeAudioDataToFile()
-        }, "AudioRecordingThread")
-        recordingThread?.start()
-        Log.d(TAG, "Recording started: ${outputFile.absolutePath}")
-    }
-
-    private fun writeAudioDataToFile() {
-        val data = ByteArray(BUFFER_SIZE)
-        val os = FileOutputStream(outputFile)
-        
-        // Write placeholder WAV header
-        writeWavHeader(os, CHANNEL_CONFIG, SAMPLE_RATE, AUDIO_FORMAT)
-
-        while (isRecording) {
-            val read = audioRecord?.read(data, 0, BUFFER_SIZE) ?: 0
-            if (read > 0) {
-                os.write(data, 0, read)
+                if (audioRecord?.state == AudioRecord.STATE_INITIALIZED) {
+                    Log.d(TAG, "AudioRecord initialized with source: $source")
+                    break
+                } else {
+                    Log.w(TAG, "Failed to initialize AudioRecord with source: $source")
+                    audioRecord?.release()
+                    audioRecord = null
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Exception initializing AudioRecord with source $source: ${e.message}")
             }
         }
 
-        os.close()
-        updateWavHeader(outputFile)
+        if (audioRecord == null) {
+            Log.e(TAG, "All audio sources failed")
+            return false
+        }
+
+        try {
+            audioRecord?.startRecording()
+            
+            if (audioRecord?.recordingState != AudioRecord.RECORDSTATE_RECORDING) {
+                Log.e(TAG, "AudioRecord failed to enter recording state")
+                audioRecord?.release()
+                audioRecord = null
+                return false
+            }
+
+            isRecording = true
+
+            val thread = Thread({
+                writeAudioDataToFile(bufferSize)
+            }, "AudioRecordingThread")
+            recordingThread = thread
+            thread.start()
+            Log.d(TAG, "Recording started successfully: ${outputFile.absolutePath}")
+            return true
+        } catch (e: Exception) {
+            Log.e(TAG, "Exception starting recording: ${e.message}")
+            audioRecord?.release()
+            audioRecord = null
+            return false
+        }
+    }
+
+    private fun writeAudioDataToFile(bufferSize: Int) {
+        val data = ByteArray(bufferSize)
+        var os: FileOutputStream? = null
+        try {
+            os = FileOutputStream(outputFile)
+            
+            // Write placeholder WAV header
+            writeWavHeader(os, CHANNEL_CONFIG, SAMPLE_RATE, AUDIO_FORMAT)
+
+            while (isRecording) {
+                val read = audioRecord?.read(data, 0, bufferSize) ?: 0
+                if (read > 0) {
+                    os.write(data, 0, read)
+                } else if (read < 0) {
+                    Log.e(TAG, "Error reading audio data: $read")
+                    break
+                } else {
+                    // Small sleep to prevent tight loop if read returns 0
+                    Thread.sleep(10)
+                }
+            }
+        } catch (e: IOException) {
+            Log.e(TAG, "Error writing audio data to file", e)
+        } finally {
+            try {
+                os?.close()
+                updateWavHeader(outputFile)
+            } catch (e: IOException) {
+                Log.e(TAG, "Error closing file output stream", e)
+            }
+        }
     }
 
     fun stopRecording() {
         if (!isRecording) return
 
         isRecording = false
-        audioRecord?.apply {
-            stop()
-            release()
+        try {
+            audioRecord?.apply {
+                if (recordingState == AudioRecord.RECORDSTATE_RECORDING) {
+                    stop()
+                }
+                release()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error stopping AudioRecord", e)
         }
         audioRecord = null
-        recordingThread?.join()
+        recordingThread?.join(1000) // Wait at most 1s for thread to finish
         Log.d(TAG, "Recording stopped")
     }
 
@@ -133,19 +200,27 @@ class VoiceRecorder(private val outputFile: File) {
     }
 
     private fun updateWavHeader(file: File) {
-        val raf = RandomAccessFile(file, "rw")
-        val fileSize = raf.length()
-        val dataSize = fileSize - 44
+        if (!file.exists()) return
+        var raf: RandomAccessFile? = null
+        try {
+            raf = RandomAccessFile(file, "rw")
+            val fileSize = raf.length()
+            if (fileSize < 44) return
+            
+            val dataSize = fileSize - 44
 
-        // RIFF chunk size
-        raf.seek(4)
-        raf.write(intToByteArray((fileSize - 8).toInt()))
+            // RIFF chunk size
+            raf.seek(4)
+            raf.write(intToByteArray((fileSize - 8).toInt()))
 
-        // data chunk size
-        raf.seek(40)
-        raf.write(intToByteArray(dataSize.toInt()))
-
-        raf.close()
+            // data chunk size
+            raf.seek(40)
+            raf.write(intToByteArray(dataSize.toInt()))
+        } catch (e: Exception) {
+            Log.e(TAG, "Error updating WAV header", e)
+        } finally {
+            raf?.close()
+        }
     }
 
     private fun intToByteArray(value: Int): ByteArray {
